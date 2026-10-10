@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrack — Digital Fitness Goal Progress</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#101828",
+            mint: "#35D0BA",
+            purple: "#7357FF",
+            soft: "#F5F7FB"
+          },
+          boxShadow: {
+            soft: "0 20px 60px rgba(16, 24, 40, .08)"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .gradient-text {
+      background: linear-gradient(90deg, #7357FF, #35D0BA);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-gradient {
+      background:
+        radial-gradient(circle at 80% 15%, rgba(115,87,255,.20), transparent 28%),
+        radial-gradient(circle at 15% 80%, rgba(53,208,186,.16), transparent 30%),
+        #f8faff;
+    }
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .ring-bg { stroke: #e9edf5; }
+    .ring-progress {
+      stroke: url(#ringGradient);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s ease;
+    }
+    .bar-fill { transition: width 1s ease; }
+    .fade-up {
+      animation: fadeUp .7s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .float {
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+  </style>
+</head>
+
+<body class="bg-soft text-ink">
+
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+      <a href="#" class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-xl text-white shadow-lg">⚡</div>
+        <div>
+          <div class="text-lg font-black tracking-tight">FitTrack</div>
+          <div class="text-[10px] font-bold uppercase tracking-[.22em] text-slate-400">Smart Fitness</div>
+        </div>
+      </a>
+
+      <div class="hidden items-center gap-8 text-sm font-semibold text-slate-600 md:flex">
+        <a href="#dashboard" class="transition hover:text-purple">Dashboard</a>
+        <a href="#goals" class="transition hover:text-purple">Goals</a>
+        <a href="#activity" class="transition hover:text-purple">Activity</a>
+        <a href="#tips" class="transition hover:text-purple">Tips</a>
+      </div>
+
+      <button onclick="showToast('Profile synced successfully!')" class="rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-lg">
+        My Profile
+      </button>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero-gradient">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-24">
+      <div class="fade-up">
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-purple/10 bg-white px-4 py-2 text-xs font-bold text-purple shadow-sm">
+          <span class="h-2 w-2 rounded-full bg-mint"></span>
+          YOUR HEALTH. YOUR PROGRESS.
+        </div>
+
+        <h1 class="max-w-3xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+          Turn every step into
+          <span class="gradient-text">progress.</span>
+        </h1>
+
+        <p class="mt-6 max-w-xl text-lg leading-8 text-slate-600">
+          Track your daily fitness goals with a simple visual dashboard.
+          See exactly how close you are to becoming your strongest self.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#dashboard" class="rounded-2xl bg-ink px-6 py-3.5 text-sm font-extrabold text-white shadow-xl shadow-slate-300/40 transition hover:-translate-y-1">
+            View My Progress →
+          </a>
+          <a href="#goals" class="rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-extrabold text-slate-700 transition hover:border-purple hover:text-purple">
+            Explore Goals
+          </a>
+        </div>
+
+        <div class="mt-8 flex gap-8 text-sm">
+          <div><b class="text-2xl">7</b><span class="ml-2 text-slate-500">Day Streak</span></div>
+          <div><b class="text-2xl">84%</b><span class="ml-2 text-slate-500">Weekly Goal</span></div>
+          <div><b class="text-2xl">12.4k</b><span class="ml-2 text-slate-500">Steps</span></div>
+        </div>
+      </div>
+
+      <!-- Hero visual -->
+      <div class="relative fade-up">
+        <div class="absolute -right-4 -top-5 h-24 w-24 rounded-full bg-purple/10 blur-2xl"></div>
+        <div class="absolute -bottom-5 -left-5 h-28 w-28 rounded-full bg-mint/20 blur-2xl"></div>
+
+        <div class="float relative rounded-[2rem] border border-white bg-white p-6 shadow-soft">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Today's Goal</p>
+              <h2 class="mt-1 text-xl font-black">Move Your Body</h2>
+            </div>
+            <span class="rounded-full bg-mint/10 px-3 py-1.5 text-xs font-extrabold text-emerald-600">On Track</span>
+          </div>
+
+          <div class="my-8 flex items-center justify-center">
+            <svg class="progress-ring h-64 w-64" viewBox="0 0 220 220">
+              <defs>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7357FF"/>
+                  <stop offset="100%" stop-color="#35D0BA"/>
+                </linearGradient>
+              </defs>
+              <circle cx="110" cy="110" r="86" fill="none" stroke-width="18" class="ring-bg"/>
+              <circle id="mainRing" cx="110" cy="110" r="86" fill="none" stroke-width="18"
+                      class="ring-progress" stroke-dasharray="540" stroke-dashoffset="86"/>
+            </svg>
+            <div class="absolute text-center">
+              <div class="text-5xl font-black">84<span class="text-2xl">%</span></div>
+              <div class="mt-1 text-sm font-semibold text-slate-400">Completed</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div class="rounded-2xl bg-soft p-3 text-center">
+              <div class="text-lg font-black">8,420</div>
+              <div class="text-[11px] font-semibold text-slate-400">Steps</div>
+            </div>
+            <div class="rounded-2xl bg-soft p-3 text-center">
+              <div class="text-lg font-black">420</div>
+              <div class="text-[11px] font-semibold text-slate-400">Calories</div>
+            </div>
+            <div class="rounded-2xl bg-soft p-3 text-center">
+              <div class="text-lg font-black">42m</div>
+              <div class="text-[11px] font-semibold text-slate-400">Workout</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <main id="dashboard" class="mx-auto max-w-7xl px-5 py-16 lg:px-8">
+    <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[.2em] text-purple">Personal Dashboard</p>
+        <h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Your progress at a glance</h2>
+      </div>
+      <div class="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-500 shadow-sm">
+        Monday, September 14
+      </div>
+    </div>
+
+    <!-- Main progress card -->
+    <section class="rounded-[2rem] bg-ink p-6 text-white shadow-soft sm:p-8">
+      <div class="grid items-center gap-8 lg:grid-cols-[1fr_2fr]">
+        <div>
+          <div class="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-mint">
+            WEEKLY TARGET
+          </div>
+          <h3 class="text-3xl font-black">You're doing great!</h3>
+          <p class="mt-3 max-w-md text-sm leading-6 text-slate-300">
+            You have completed 84% of your weekly fitness target.
+            Just a little more consistency to hit 100%.
+          </p>
+          <button onclick="completeGoal()" class="mt-6 rounded-2xl bg-white px-5 py-3 text-sm font-black text-ink transition hover:scale-[1.02]">
+            Log Activity +
+          </button>
+        </div>
+
+        <div>
+          <div class="mb-3 flex items-end justify-between">
+            <span class="text-sm font-bold text-slate-300">Overall completion</span>
+            <span id="overallPercent" class="text-3xl font-black">84%</span>
+          </div>
+          <div class="h-5 overflow-hidden rounded-full bg-white/10">
+            <div id="overallBar" class="bar-fill h-full rounded-full bg-gradient-to-r from-purple to-mint" style="width:84%"></div>
+          </div>
+          <div class="mt-4 flex justify-between text-xs font-semibold text-slate-400">
+            <span>0%</span><span>Goal: 100%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Goal cards -->
+    <section id="goals" class="mt-10">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-black uppercase tracking-[.2em] text-slate-400">Daily Goals</p>
+          <h3 class="mt-1 text-2xl font-black">Keep the momentum going</h3>
+        </div>
+        <span class="hidden rounded-full bg-purple/10 px-4 py-2 text-xs font-black text-purple sm:block">4 ACTIVE GOALS</span>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-2">
+        <!-- Goal 1 -->
+        <article class="rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+          <div class="flex items-start justify-between">
+            <div class="flex gap-4">
+              <div class="grid h-12 w-12 place-items-center rounded-2xl bg-orange-50 text-2xl">🏃</div>
+              <div>
+                <h4 class="font-black">Daily Steps</h4>
+                <p class="mt-1 text-sm text-slate-400">Walk more, feel better</p>
+              </div>
+            </div>
+            <span class="text-sm font-black text-purple">84%</span>
+          </div>
+          <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div class="bar-fill h-full rounded-full bg-gradient-to-r from-purple to-mint" style="width:84%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs font-bold text-slate-400">
+            <span>8,420 steps</span><span>10,000 target</span>
+          </div>
+        </article>
+
+        <!-- Goal 2 -->
+        <article class="rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+          <div class="flex items-start justify-between">
+            <div class="flex gap-4">
+              <div class="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-2xl">💧</div>
+              <div>
+                <h4 class="font-black">Water Intake</h4>
+                <p class="mt-1 text-sm text-slate-400">Stay hydrated all day</p>
+              </div>
+            </div>
+            <span class="text-sm font-black text-purple">75%</span>
+          </div>
+          <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div class="bar-fill h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" style="width:75%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs font-bold text-slate-400">
+            <span>1.5 L</span><span>2 L target</span>
+          </div>
+        </article>
+
+        <!-- Goal 3 -->
+        <article class="rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+          <div class="flex items-start justify-between">
+            <div class="flex gap-4">
+              <div class="grid h-12 w-12 place-items-center rounded-2xl bg-purple-50 text-2xl">🏋️</div>
+              <div>
+                <h4 class="font-black">Workout Time</h4>
+                <p class="mt-1 text-sm text-slate-400">Build strength daily</p>
+              </div>
+            </div>
+            <span class="text-sm font-black text-purple">70%</span>
+          </div>
+          <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div class="bar-fill h-full rounded-full bg-gradient-to-r from-purple to-pink-400" style="width:70%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs font-bold text-slate-400">
+            <span>42 minutes</span><span>60 min target</span>
+          </div>
+        </article>
+
+        <!-- Goal 4 -->
+        <article class="rounded-3xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+          <div class="flex items-start justify-between">
+            <div class="flex gap-4">
+              <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-2xl">🔥</div>
+              <div>
+                <h4 class="font-black">Calories Burned</h4>
+                <p class="mt-1 text-sm text-slate-400">Stay active & energized</p>
+              </div>
+            </div>
+            <span class="text-sm font-black text-purple">91%</span>
+          </div>
+          <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div class="bar-fill h-full rounded-full bg-gradient-to-r from-orange-400 to-rose-500" style="width:91%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs font-bold text-slate-400">
+            <span>455 kcal</span><span>500 kcal target</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Activity -->
+    <section id="activity" class="mt-10 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+      <div class="rounded-3xl bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[.2em] text-slate-400">Weekly Activity</p>
+            <h3 class="mt-1 text-2xl font-black">Your movement</h3>
+          </div>
+          <span class="rounded-full bg-mint/10 px-3 py-1.5 text-xs font-black text-emerald-600">+18% this week</span>
+        </div>
+
+        <div class="mt-8 grid h-56 grid-cols-7 items-end gap-3">
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-purple/30 transition group-hover:bg-purple" style="height:52%"></div><span class="text-center text-xs font-bold text-slate-400">M</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-purple/40 transition group-hover:bg-purple" style="height:70%"></div><span class="text-center text-xs font-bold text-slate-400">T</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-purple/60 transition group-hover:bg-purple" style="height:62%"></div><span class="text-center text-xs font-bold text-slate-400">W</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-purple/75 transition group-hover:bg-purple" style="height:84%"></div><span class="text-center text-xs font-bold text-slate-400">T</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-mint transition group-hover:bg-emerald-500" style="height:93%"></div><span class="text-center text-xs font-bold text-slate-400">F</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-purple/50 transition group-hover:bg-purple" style="height:76%"></div><span class="text-center text-xs font-bold text-slate-400">S</span>
+          </div>
+          <div class="group flex h-full flex-col justify-end gap-2">
+            <div class="mx-auto w-full rounded-t-xl bg-slate-200 transition group-hover:bg-slate-300" style="height:35%"></div><span class="text-center text-xs font-bold text-slate-400">S</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak card -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple to-indigo-700 p-7 text-white shadow-soft">
+        <div class="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10"></div>
+        <div class="relative">
+          <div class="text-4xl">🔥</div>
+          <p class="mt-5 text-xs font-black uppercase tracking-[.2em] text-white/60">Current Streak</p>
+          <div class="mt-2 text-6xl font-black">7</div>
+          <p class="mt-1 font-semibold text-white/75">days in a row</p>
+
+          <div class="mt-8 grid grid-cols-7 gap-2">
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-white text-xs font-black text-purple">✓</div>
+            <div class="grid aspect-square place-items-center rounded-full bg-mint text-xs font-black text-ink">✓</div>
+          </div>
+
+          <p class="mt-5 text-sm font-semibold text-white/80">One more active day unlocks your next milestone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tips -->
+    <section id="tips" class="mt-10 rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+      <div class="grid items-center gap-7 md:grid-cols-[1fr_auto]">
+        <div>
+          <p class="text-xs font-black uppercase tracking-[.2em] text-purple">Today's Motivation</p>
+          <h3 class="mt-2 text-2xl font-black">Small steps create big results.</h3>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            Don't focus on perfection. Focus on showing up consistently.
+            Every completed goal adds another step toward your long-term fitness journey.
+          </p>
+        </div>
+        <button onclick="showToast('Motivation saved to your dashboard!')" class="rounded-2xl bg-purple px-5 py-3 text-sm font-black text-white shadow-lg shadow-purple/20 transition hover:-translate-y-1">
+          Save Motivation ♥
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-10 border-t border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <div><span class="font-black text-ink">FitTrack</span> — Digital Fitness Goal Progress</div>
+      <div>Don't just track your fitness. Transform it.</div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 translate-y-20 rounded-2xl bg-ink px-5 py-3 text-sm font-bold text-white opacity-0 shadow-2xl transition-all duration-300">
+    Activity logged!
+  </div>
+
+  <script>
+    let progress = 84;
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2200);
+    }
+
+    function completeGoal() {
+      if (progress < 100) {
+        progress += 2;
+        document.getElementById("overallPercent").textContent = progress + "%";
+        document.getElementById("overallBar").style.width = progress + "%";
+        showToast("Great job! Your progress increased by 2% 🎉");
+      } else {
+        showToast("Amazing! Weekly goal completed! 🏆");
+      }
+    }
+
+    // Animate the main progress ring when the page loads.
+    window.addEventListener("load", () => {
+      const ring = document.getElementById("mainRing");
+      setTimeout(() => ring.style.strokeDashoffset = "86", 300);
+    });
+  </script>
+
+</body>
+</html>
